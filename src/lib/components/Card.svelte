@@ -5,6 +5,8 @@
   import { orientation, resetBaseOrientation } from "../stores/orientation.js";
   import { clamp, round, adjust } from "../helpers/Math.js";
 
+  import blueEyesImage from '../../assets/images/blue_eyes.jpg';
+
   // data / pokemon props
   export let id = "";
   export let name = "";
@@ -27,18 +29,18 @@
   const randomSeed = {
     x: Math.random(),
     y: Math.random()
-  }
+  };
 
-  const cosmosPosition = { 
-    x: Math.floor( randomSeed.x * 734 ), 
-    y: Math.floor( randomSeed.y * 1280 ) 
+  const cosmosPosition = {
+    x: Math.floor(randomSeed.x * 734),
+    y: Math.floor(randomSeed.y * 1280)
   };
 
   let isTrainerGallery = false;
 
   let back_img = back;
   let front_img = "";
-  let img_base = img.startsWith("http") ? "" : "https://images.pokemontcg.io/";
+  // let img_base = img.startsWith("http") ? "" : "https://localhost:5173/";
 
 
   let thisCard;
@@ -74,13 +76,13 @@
   };
 
   const interact = (e) => {
-    
+
     endShowcase();
 
     if (!isVisible) {
       return (interacting = false);
     }
-    
+
     // prevent other background cards being interacted with
     if ($activeCard && $activeCard !== thisCard) {
       return (interacting = false);
@@ -97,32 +99,32 @@
     const rect = $el.getBoundingClientRect(); // get element's current size/position
     const absolute = {
       x: e.clientX - rect.left, // get mouse position from left
-      y: e.clientY - rect.top, // get mouse position from right
+      y: e.clientY - rect.top // get mouse position from right
     };
     const percent = {
       x: clamp(round((100 / rect.width) * absolute.x)),
-      y: clamp(round((100 / rect.height) * absolute.y)),
+      y: clamp(round((100 / rect.height) * absolute.y))
     };
     const center = {
       x: percent.x - 50,
-      y: percent.y - 50,
+      y: percent.y - 50
     };
 
     updateSprings({
       x: adjust(percent.x, 0, 100, 37, 63),
-      y: adjust(percent.y, 0, 100, 33, 67),
-    },{
+      y: adjust(percent.y, 0, 100, 33, 67)
+    }, {
       x: round(-(center.x / 3.5)),
-      y: round(center.y / 2),
-    },{
+      y: round(center.y / 2)
+    }, {
       x: round(percent.x),
       y: round(percent.y),
-      o: 1,
+      o: 1
     });
   };
 
   const interactEnd = (e, delay = 500) => {
-    setTimeout(function () {
+    setTimeout(function() {
       const snapStiff = 0.01;
       const snapDamp = 0.06;
       interacting = false;
@@ -186,11 +188,11 @@
 
     const delta = {
       x: round(view.clientWidth / 2 - rect.x - rect.width / 2),
-      y: round(view.clientHeight / 2 - rect.y - rect.height / 2),
+      y: round(view.clientHeight / 2 - rect.y - rect.height / 2)
     };
     springTranslate.set({
       x: delta.x,
-      y: delta.y,
+      y: delta.y
     });
   };
 
@@ -205,7 +207,7 @@
       delay = 1000;
       springRotateDelta.set({
         x: 360,
-        y: 0,
+        y: 0
       });
     }
     firstPop = false;
@@ -248,11 +250,11 @@
   $: dynamicStyles = `
     --pointer-x: ${$springGlare.x}%;
     --pointer-y: ${$springGlare.y}%;
-    --pointer-from-center: ${ 
-      clamp( Math.sqrt( 
-        ($springGlare.y - 50) * ($springGlare.y - 50) + 
-        ($springGlare.x - 50) * ($springGlare.x - 50) 
-      ) / 50, 0, 1) };
+    --pointer-from-center: ${
+    clamp(Math.sqrt(
+      ($springGlare.y - 50) * ($springGlare.y - 50) +
+      ($springGlare.x - 50) * ($springGlare.x - 50)
+    ) / 50, 0, 1)};
     --pointer-from-top: ${$springGlare.y / 100};
     --pointer-from-left: ${$springGlare.x / 100};
     --card-opacity: ${$springGlare.o};
@@ -269,7 +271,7 @@
     rarity = rarity.toLowerCase();
     supertype = supertype.toLowerCase();
     number = number.toLowerCase();
-    isTrainerGallery = !!number.match(/^[tg]g/i) || !!( id === "swshp-SWSH076" || id === "swshp-SWSH077" );
+    isTrainerGallery = !!number.match(/^[tg]g/i) || !!(id === "swshp-SWSH076" || id === "swshp-SWSH077");
     if (Array.isArray(types)) {
       types = types.join(" ").toLowerCase();
     }
@@ -284,26 +286,26 @@
     const y = e.relative.beta;
     const limit = { x: 16, y: 18 };
 
-    const degrees = { 
-      x: clamp(x, -limit.x, limit.x), 
-      y: clamp(y, -limit.y, limit.y) 
+    const degrees = {
+      x: clamp(x, -limit.x, limit.x),
+      y: clamp(y, -limit.y, limit.y)
     };
 
     updateSprings({
       x: adjust(degrees.x, -limit.x, limit.x, 37, 63),
-      y: adjust(degrees.y, -limit.y, limit.y, 33, 67),
-    },{
+      y: adjust(degrees.y, -limit.y, limit.y, 33, 67)
+    }, {
       x: round(degrees.x * -1),
-      y: round(degrees.y),
-    },{
+      y: round(degrees.y)
+    }, {
       x: adjust(degrees.x, -limit.x, limit.x, 0, 100),
       y: adjust(degrees.y, -limit.y, limit.y, 0, 100),
-      o: 1,
+      o: 1
     });
 
   };
 
-  const updateSprings = ( background, rotate, glare ) => {
+  const updateSprings = (background, rotate, glare) => {
 
     springBackground.stiffness = springInteractSettings.stiffness;
     springBackground.damping = springInteractSettings.damping;
@@ -316,7 +318,7 @@
     springRotate.set(rotate);
     springGlare.set(glare);
 
-  }
+  };
 
   $: {
     if ($activeCard && $activeCard === thisCard) {
@@ -333,7 +335,7 @@
 
   const imageLoader = (e) => {
     loading = false;
-    if ( mask || foil ) {
+    if (mask || foil) {
       foilStyles = `
     --mask: url(${mask});
     --foil: url(${foil});
@@ -345,7 +347,9 @@
 
     // set the front image on mount so that
     // the lazyloading can work correctly
-    front_img = img_base + img;
+    front_img = blueEyesImage;
+    // front_img = img;
+    // front_img = img_base + img;
 
     // run a cute little animation on load
     // for showcase card
@@ -364,17 +368,17 @@
         springBackground.stiffness = s;
         springBackground.damping = d;
         if (isVisible) {
-          showcaseInterval = setInterval(function () {
+          showcaseInterval = setInterval(function() {
             r += 0.05;
             springRotate.set({ x: Math.sin(r) * 25, y: Math.cos(r) * 25 });
             springGlare.set({
               x: 55 + Math.sin(r) * 55,
               y: 55 + Math.cos(r) * 55,
-              o: 0.8,
+              o: 0.8
             });
             springBackground.set({
               x: 20 + Math.sin(r) * 20,
-              y: 20 + Math.cos(r) * 20,
+              y: 20 + Math.cos(r) * 20
             });
           }, 20);
           showcaseTimerEnd = setTimeout(() => {
@@ -408,7 +412,7 @@
   style={dynamicStyles}
   bind:this={thisCard}
 >
-  <div 
+  <div
     class="card__translater">
     <button
       class="card__rotator"
@@ -418,7 +422,7 @@
       on:blur={deactivate}
       aria-label="Expand the Pokemon Card; {name}."
       tabindex="0"
-      >
+    >
       <img
         class="card__back"
         src={back_img}
@@ -427,8 +431,8 @@
         width="660"
         height="921"
       />
-      <div class="card__front" 
-        style={ staticStyles + foilStyles }>
+      <div class="card__front"
+           style={ staticStyles + foilStyles }>
         <img
           src={front_img}
           alt="Front design of the {name} Pokemon Card, with the stats and info around the edge"
@@ -446,20 +450,20 @@
 
 <style>
 
-  :root {
-    --pointer-x: 50%;
-    --pointer-y: 50%;
-    --card-scale: 1;
-    --card-opacity: 0;
-    --translate-x: 0px;
-    --translate-y: 0px;
-    --rotate-x: 0deg;
-    --rotate-y: 0deg;
-    --background-x: var(--pointer-x);
-    --background-y: var(--pointer-y);
-    --pointer-from-center: 0;    
-    --pointer-from-top: var(--pointer-from-center);
-    --pointer-from-left: var(--pointer-from-center);
-  }
+    :root {
+        --pointer-x: 50%;
+        --pointer-y: 50%;
+        --card-scale: 1;
+        --card-opacity: 0;
+        --translate-x: 0px;
+        --translate-y: 0px;
+        --rotate-x: 0deg;
+        --rotate-y: 0deg;
+        --background-x: var(--pointer-x);
+        --background-y: var(--pointer-y);
+        --pointer-from-center: 0;
+        --pointer-from-top: var(--pointer-from-center);
+        --pointer-from-left: var(--pointer-from-center);
+    }
 
 </style>
